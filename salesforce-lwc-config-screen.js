@@ -18,6 +18,11 @@ export default class SalesforceLwcConfigScreen extends LightningElement {
   ];
 
   dragElement = null;
+  dragStartX = 0;
+  dragStartY = 0;
+  elementStartX = 0;
+  elementStartY = 0;
+  isDragging = false;
 
   handleUploadFinished(event) {
     const uploadedFiles = event.detail.files;
@@ -54,11 +59,38 @@ export default class SalesforceLwcConfigScreen extends LightningElement {
   }
 
   handleElementMouseDown(event) {
-    // Placeholder for drag move functionality of placed elements
+    const id = parseInt(event.currentTarget.getAttribute('data-id'), 10);
+    this.dragElement = this.placedElements.find(el => el.id === id);
+    this.dragStartX = event.clientX;
+    this.dragStartY = event.clientY;
+    const leftMatch = this.dragElement.style.match(/left: (\d+)px/);
+    const topMatch = this.dragElement.style.match(/top: (\d+)px/);
+    this.elementStartX = leftMatch ? parseInt(leftMatch[1], 10) : 0;
+    this.elementStartY = topMatch ? parseInt(topMatch[1], 10) : 0;
+    this.isDragging = true;
+    window.addEventListener('mousemove', this.handleElementMouseMove.bind(this));
+    window.addEventListener('mouseup', this.handleElementMouseUp.bind(this));
+  }
+
+  handleElementMouseMove(event) {
+    if (!this.isDragging) return;
+    const deltaX = event.clientX - this.dragStartX;
+    const deltaY = event.clientY - this.dragStartY;
+    const newX = this.elementStartX + deltaX;
+    const newY = this.elementStartY + deltaY;
+    this.dragElement.style = `position: absolute; left: ${newX}px; top: ${newY}px; background: #f3f6f9; border: 1px solid #d8dde6; padding: 4px 8px; border-radius: 4px; cursor: move;`;
+    this.placedElements = this.placedElements.map(el => el.id === this.dragElement.id ? this.dragElement : el);
+  }
+
+  handleElementMouseUp(event) {
+    this.isDragging = false;
+    window.removeEventListener('mousemove', this.handleElementMouseMove.bind(this));
+    window.removeEventListener('mouseup', this.handleElementMouseUp.bind(this));
   }
 
   handleSave() {
     // Placeholder for saving configuration logic
+    console.log('Saving configuration:', this.placedElements);
     alert('Configuration saved (functionality to be implemented)');
   }
 }
