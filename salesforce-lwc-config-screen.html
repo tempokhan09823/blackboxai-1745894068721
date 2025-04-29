@@ -1,0 +1,39 @@
+<template>
+  <lightning-card title="E-Signature Configuration" icon-name="standard:document">
+    <div class="slds-grid slds-wrap slds-p-around_medium">
+      <div class="slds-col slds-size_1-of-4 slds-p-right_small">
+        <lightning-file-upload
+          label="Upload PDF Document"
+          accept=".pdf"
+          onuploadfinished={handleUploadFinished}
+          class="slds-m-bottom_medium">
+        </lightning-file-upload>
+        <div class="slds-box slds-box_xx-small slds-m-bottom_medium" style="height: 400px; overflow-y: auto;">
+          <p class="slds-text-heading_small slds-m-bottom_small">Form Elements</p>
+          <template for:each={formElements} for:item="element">
+            <div key={element.name} class="slds-box slds-m-bottom_x-small slds-text-body_regular slds-cursor_move" draggable="true" ondragstart={handleDragStart}>
+              {element.label}
+            </div>
+          </template>
+        </div>
+        <lightning-button label="Save Configuration" onclick={handleSave} variant="brand" class="slds-m-top_medium"></lightning-button>
+      </div>
+      <div class="slds-col slds-size_3-of-4">
+        <p class="slds-text-heading_small slds-m-bottom_small">PDF Preview</p>
+        <div class="pdf-preview slds-box" ondragover={handleDragOver} ondrop={handleDrop} style="height: 600px; border: 1px solid #d8dde6; position: relative;">
+          <template if:true={pdfUrl}>
+            <iframe src={pdfUrl} style="width: 100%; height: 100%; border: none;"></iframe>
+            <template for:each={placedElements} for:item="placed">
+              <div key={placed.id} class="placed-element" style={placed.style} onmousedown={handleElementMouseDown} onmouseup={handleElementMouseUp} onmousemove={handleElementMouseMove}>
+                {placed.label}
+              </div>
+            </template>
+          </template>
+          <template if:false={pdfUrl}>
+            <p class="slds-text-body_small slds-text-color_weak">Upload a PDF to start placing form elements.</p>
+          </template>
+        </div>
+      </div>
+    </div>
+  </lightning-card>
+</template>
